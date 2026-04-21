@@ -1,13 +1,13 @@
-package com.github.nanachi357.store;
+package com.github.nanachi357.library;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class StoreApplication {
+public class LibraryApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(StoreApplication.class, args);
+        SpringApplication.run(LibraryApplication.class, args);
     }
 
 }
