@@ -1,35 +1,55 @@
 package com.github.nanachi357.library.controller;
 
-import com.github.nanachi357.library.entity.Book;
-import com.github.nanachi357.library.repository.BookRepository;
+import com.github.nanachi357.library.dto.BookResponse;
+import com.github.nanachi357.library.dto.CreateBookRequest;
+import com.github.nanachi357.library.service.BookService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/books")
+@RequiredArgsConstructor
 public class BookController {
 
-    private final BookRepository bookRepository;
-
-    public BookController(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
-    }
+    private final BookService bookService;
 
     @GetMapping
-    public List<Book> getAll() {
-        return bookRepository.findAll();
+    public List<BookResponse> getAll() {
+        return bookService.getAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Book> getById(@PathVariable Long id) {
-        return bookRepository.findById(id)
+    public ResponseEntity<BookResponse> getById(@PathVariable Long id) {
+        return bookService.getById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public BookResponse create(@Valid @RequestBody CreateBookRequest request) {
+        return bookService.create(request);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        if (bookService.deleteById(id)) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
 }
