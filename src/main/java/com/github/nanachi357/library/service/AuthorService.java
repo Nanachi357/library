@@ -3,6 +3,7 @@ package com.github.nanachi357.library.service;
 import com.github.nanachi357.library.dto.AuthorResponse;
 import com.github.nanachi357.library.dto.CreateAuthorRequest;
 import com.github.nanachi357.library.entity.Author;
+import com.github.nanachi357.library.mapper.AuthorMapper;
 import com.github.nanachi357.library.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,23 +16,24 @@ import java.util.Optional;
 public class AuthorService {
 
     private final AuthorRepository authorRepository;
+    private final AuthorMapper authorMapper;
 
     public List<AuthorResponse> getAll() {
         return authorRepository.findAll().stream()
-                .map(this::toResponse)
+                .map(authorMapper::toResponse)
                 .toList();
     }
 
     public Optional<AuthorResponse> getById(Long id) {
         return authorRepository.findById(id)
-                .map(this::toResponse);
+                .map(authorMapper::toResponse);
     }
 
     public AuthorResponse create(CreateAuthorRequest request) {
-        Author author = new Author(request.name(), request.birthDate(), request.country());
+        var author = authorMapper.toEntity(request);
         Author savedAuthor = authorRepository.save(author);
 
-        return toResponse(savedAuthor);
+        return authorMapper.toResponse(savedAuthor);
     }
 
     public boolean deleteById(Long id) {
@@ -41,15 +43,6 @@ public class AuthorService {
 
         authorRepository.deleteById(id);
         return true;
-    }
-
-    private AuthorResponse toResponse(Author author) {
-        return new AuthorResponse(
-                author.getId(),
-                author.getName(),
-                author.getBirthDate(),
-                author.getCountry()
-        );
     }
 
 }
