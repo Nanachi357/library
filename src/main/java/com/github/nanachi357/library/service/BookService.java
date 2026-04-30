@@ -3,6 +3,7 @@ package com.github.nanachi357.library.service;
 import com.github.nanachi357.library.dto.BookResponse;
 import com.github.nanachi357.library.dto.CreateBookRequest;
 import com.github.nanachi357.library.entity.Book;
+import com.github.nanachi357.library.mapper.BookMapper;
 import com.github.nanachi357.library.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,23 +16,24 @@ import java.util.Optional;
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final BookMapper bookMapper;
 
     public List<BookResponse> getAll() {
         return bookRepository.findAll().stream()
-                .map(this::toResponse)
+                .map(bookMapper::toResponse)
                 .toList();
     }
 
     public Optional<BookResponse> getById(Long id) {
         return bookRepository.findById(id)
-                .map(this::toResponse);
+                .map(bookMapper::toResponse);
     }
 
     public BookResponse create(CreateBookRequest request) {
-        Book book = new Book(request.title());
+        var book = bookMapper.toEntity(request);
         Book savedBook = bookRepository.save(book);
 
-        return toResponse(savedBook);
+        return bookMapper.toResponse(savedBook);
     }
 
     public boolean deleteById(Long id) {
@@ -41,13 +43,6 @@ public class BookService {
 
         bookRepository.deleteById(id);
         return true;
-    }
-
-    private BookResponse toResponse(Book book) {
-        return new BookResponse(
-                book.getId(),
-                book.getTitle()
-        );
     }
 
 }
