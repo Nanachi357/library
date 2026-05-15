@@ -2,15 +2,19 @@ package com.github.nanachi357.library.controller;
 
 import com.github.nanachi357.library.dto.AuthorResponse;
 import com.github.nanachi357.library.dto.CreateAuthorRequest;
+import com.github.nanachi357.library.dto.PatchAuthorRequest;
+import com.github.nanachi357.library.dto.UpdateAuthorRequest;
 import com.github.nanachi357.library.service.AuthorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -41,6 +45,26 @@ public class AuthorController {
     @ResponseStatus(HttpStatus.CREATED)
     public AuthorResponse create(@Valid @RequestBody CreateAuthorRequest request) {
         return authorService.create(request);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AuthorResponse> update(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateAuthorRequest request
+    ) {
+        return authorService.update(id, request)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<AuthorResponse> patch(
+            @PathVariable Long id,
+            @Valid @RequestBody PatchAuthorRequest request
+    ) {
+        return authorService.patch(id, request)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
