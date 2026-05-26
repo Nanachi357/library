@@ -52,9 +52,13 @@ public class AuthorController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateAuthorRequest request
     ) {
-        return authorService.update(id, request)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        var response = authorService.update(id, request);
+
+        if (response.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(response.get());
     }
 
     @PatchMapping("/{id}")
@@ -62,9 +66,13 @@ public class AuthorController {
             @PathVariable Long id,
             @Valid @RequestBody PatchAuthorRequest request
     ) {
-        return authorService.patch(id, request)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        var response = authorService.patch(id, request);
+
+        if (response.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(response.get());
     }
 
     @DeleteMapping("/{id}")

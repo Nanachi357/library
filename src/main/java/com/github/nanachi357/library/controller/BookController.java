@@ -52,9 +52,13 @@ public class BookController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateBookRequest request
     ) {
-        return bookService.update(id, request)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        var response = bookService.update(id, request);
+
+        if (response.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(response.get());
     }
 
     @PatchMapping("/{id}")
@@ -62,9 +66,13 @@ public class BookController {
             @PathVariable Long id,
             @Valid @RequestBody PatchBookRequest request
     ) {
-        return bookService.patch(id, request)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        var response = bookService.patch(id, request);
+
+        if (response.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(response.get());
     }
 
     @DeleteMapping("/{id}")

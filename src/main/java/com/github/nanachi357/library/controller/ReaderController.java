@@ -52,9 +52,13 @@ public class ReaderController {
             @PathVariable Long id,
             @Valid @RequestBody UpdateReaderRequest request
     ) {
-        return readerService.update(id, request)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        var response = readerService.update(id, request);
+
+        if (response.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(response.get());
     }
 
     @PatchMapping("/{id}")
@@ -62,9 +66,13 @@ public class ReaderController {
             @PathVariable Long id,
             @Valid @RequestBody PatchReaderRequest request
     ) {
-        return readerService.patch(id, request)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        var response = readerService.patch(id, request);
+
+        if (response.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(response.get());
     }
 
     @DeleteMapping("/{id}")
