@@ -17,12 +17,15 @@ public interface ReaderMapper {
     ReaderResponse toResponse(Reader reader);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "books", ignore = true)
     Reader toEntity(CreateReaderRequest request);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "books", ignore = true)
     void updateEntity(UpdateReaderRequest request, @MappingTarget Reader reader);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "books", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void patchEntity(PatchReaderRequest request, @MappingTarget Reader reader);
 

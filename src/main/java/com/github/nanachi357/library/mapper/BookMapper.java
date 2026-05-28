@@ -17,12 +17,18 @@ public interface BookMapper {
     BookResponse toResponse(Book book);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "authors", ignore = true)
+    @Mapping(target = "readers", ignore = true)
     Book toEntity(CreateBookRequest request);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "authors", ignore = true)
+    @Mapping(target = "readers", ignore = true)
     void updateEntity(UpdateBookRequest request, @MappingTarget Book book);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "authors", ignore = true)
+    @Mapping(target = "readers", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void patchEntity(PatchBookRequest request, @MappingTarget Book book);
 
