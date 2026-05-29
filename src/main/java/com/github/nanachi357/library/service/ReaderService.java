@@ -1,11 +1,14 @@
 package com.github.nanachi357.library.service;
 
+import com.github.nanachi357.library.dto.BookResponse;
 import com.github.nanachi357.library.dto.CreateReaderRequest;
 import com.github.nanachi357.library.dto.PatchReaderRequest;
 import com.github.nanachi357.library.dto.ReaderResponse;
 import com.github.nanachi357.library.dto.UpdateReaderRequest;
 import com.github.nanachi357.library.entity.Reader;
+import com.github.nanachi357.library.mapper.BookMapper;
 import com.github.nanachi357.library.mapper.ReaderMapper;
+import com.github.nanachi357.library.repository.BookRepository;
 import com.github.nanachi357.library.repository.ReaderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +22,9 @@ import java.util.Optional;
 public class ReaderService {
 
     private final ReaderRepository readerRepository;
+    private final BookRepository bookRepository;
     private final ReaderMapper readerMapper;
+    private final BookMapper bookMapper;
 
     public List<ReaderResponse> getAll() {
         return readerRepository.findAll().stream()
@@ -55,6 +60,19 @@ public class ReaderService {
                     readerMapper.patchEntity(request, reader);
                     return readerMapper.toResponse(reader);
                 });
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<List<BookResponse>> getBooksByReader(Long readerId) {
+        if (!readerRepository.existsById(readerId)) {
+            return Optional.empty();
+        }
+
+        List<BookResponse> books = bookRepository.findAllByReaderId(readerId).stream()
+                .map(bookMapper::toResponse)
+                .toList();
+
+        return Optional.of(books);
     }
 
     public boolean deleteById(Long id) {
