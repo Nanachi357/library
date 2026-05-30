@@ -1,6 +1,7 @@
 package com.github.nanachi357.library.controller;
 
 import com.github.nanachi357.library.dto.AuthorResponse;
+import com.github.nanachi357.library.dto.BookResponse;
 import com.github.nanachi357.library.dto.CreateAuthorRequest;
 import com.github.nanachi357.library.dto.PatchAuthorRequest;
 import com.github.nanachi357.library.dto.UpdateAuthorRequest;
@@ -39,6 +40,17 @@ public class AuthorController {
         return authorService.getById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{authorId}/books")
+    public ResponseEntity<List<BookResponse>> getBooksByAuthor(@PathVariable Long authorId) {
+        var response = authorService.getBooksByAuthor(authorId);
+
+        if (response.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(response.get());
     }
 
     @PostMapping
