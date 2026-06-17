@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,12 +76,20 @@ public class AuthorService {
         return Optional.of(books);
     }
 
+    @Transactional
     public boolean deleteById(Long id) {
-        if (!authorRepository.existsById(id)) {
+        Optional<Author> authorOptional = authorRepository.findById(id);
+
+        if (authorOptional.isEmpty()) {
             return false;
         }
 
-        authorRepository.deleteById(id);
+        Author author = authorOptional.get();
+
+        new HashSet<>(author.getBooks())
+                .forEach(book -> book.removeAuthor(author));
+
+        authorRepository.delete(author);
         return true;
     }
 

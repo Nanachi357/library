@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,12 +76,20 @@ public class ReaderService {
         return Optional.of(books);
     }
 
+    @Transactional
     public boolean deleteById(Long id) {
-        if (!readerRepository.existsById(id)) {
+        Optional<Reader> readerOptional = readerRepository.findById(id);
+
+        if (readerOptional.isEmpty()) {
             return false;
         }
 
-        readerRepository.deleteById(id);
+        Reader reader = readerOptional.get();
+
+        new HashSet<>(reader.getBooks())
+                .forEach(book -> book.removeReader(reader));
+
+        readerRepository.delete(reader);
         return true;
     }
 
