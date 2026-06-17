@@ -6,6 +6,7 @@ import com.github.nanachi357.library.dto.PatchReaderRequest;
 import com.github.nanachi357.library.dto.ReaderResponse;
 import com.github.nanachi357.library.dto.UpdateReaderRequest;
 import com.github.nanachi357.library.entity.Reader;
+import com.github.nanachi357.library.exception.ResourceNotFoundException;
 import com.github.nanachi357.library.mapper.BookMapper;
 import com.github.nanachi357.library.mapper.ReaderMapper;
 import com.github.nanachi357.library.repository.BookRepository;
@@ -65,16 +66,14 @@ public class ReaderService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<List<BookResponse>> getBooksByReader(Long readerId) {
+    public List<BookResponse> getBooksByReader(Long readerId) {
         if (!readerRepository.existsById(readerId)) {
-            return Optional.empty();
+            throw new ResourceNotFoundException("Reader not found with id: " + readerId);
         }
 
-        List<BookResponse> books = bookRepository.findAllByReaderId(readerId).stream()
+        return bookRepository.findAllByReaderId(readerId).stream()
                 .map(bookMapper::toResponse)
                 .toList();
-
-        return Optional.of(books);
     }
 
     @Transactional

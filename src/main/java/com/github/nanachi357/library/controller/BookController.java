@@ -49,20 +49,14 @@ public class BookController {
 
     @PostMapping("/{bookId}/authors/{authorId}")
     public ResponseEntity<Void> addAuthorToBook(@PathVariable Long bookId, @PathVariable Long authorId) {
-        if (bookService.addAuthorToBook(bookId, authorId)) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.notFound().build();
+        bookService.addAuthorToBook(bookId, authorId);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{bookId}/readers/{readerId}")
     public ResponseEntity<Void> addReaderToBook(@PathVariable Long bookId, @PathVariable Long readerId) {
-        if (bookService.addReaderToBook(bookId, readerId)) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.notFound().build();
+        bookService.addReaderToBook(bookId, readerId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")

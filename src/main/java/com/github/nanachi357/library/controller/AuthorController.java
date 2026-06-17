@@ -44,13 +44,7 @@ public class AuthorController {
 
     @GetMapping("/{authorId}/books")
     public ResponseEntity<List<BookResponse>> getBooksByAuthor(@PathVariable Long authorId) {
-        var response = authorService.getBooksByAuthor(authorId);
-
-        if (response.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(response.get());
+        return ResponseEntity.ok(authorService.getBooksByAuthor(authorId));
     }
 
     @PostMapping

@@ -6,6 +6,7 @@ import com.github.nanachi357.library.dto.CreateAuthorRequest;
 import com.github.nanachi357.library.dto.PatchAuthorRequest;
 import com.github.nanachi357.library.dto.UpdateAuthorRequest;
 import com.github.nanachi357.library.entity.Author;
+import com.github.nanachi357.library.exception.ResourceNotFoundException;
 import com.github.nanachi357.library.mapper.AuthorMapper;
 import com.github.nanachi357.library.mapper.BookMapper;
 import com.github.nanachi357.library.repository.AuthorRepository;
@@ -65,16 +66,14 @@ public class AuthorService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<List<BookResponse>> getBooksByAuthor(Long authorId) {
+    public List<BookResponse> getBooksByAuthor(Long authorId) {
         if (!authorRepository.existsById(authorId)) {
-            return Optional.empty();
+            throw new ResourceNotFoundException("Author not found with id: " + authorId);
         }
 
-        List<BookResponse> books = bookRepository.findAllByAuthorId(authorId).stream()
+        return bookRepository.findAllByAuthorId(authorId).stream()
                 .map(bookMapper::toResponse)
                 .toList();
-
-        return Optional.of(books);
     }
 
     @Transactional

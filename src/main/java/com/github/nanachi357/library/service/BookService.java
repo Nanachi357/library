@@ -7,6 +7,7 @@ import com.github.nanachi357.library.dto.UpdateBookRequest;
 import com.github.nanachi357.library.entity.Author;
 import com.github.nanachi357.library.entity.Book;
 import com.github.nanachi357.library.entity.Reader;
+import com.github.nanachi357.library.exception.ResourceNotFoundException;
 import com.github.nanachi357.library.mapper.BookMapper;
 import com.github.nanachi357.library.repository.AuthorRepository;
 import com.github.nanachi357.library.repository.BookRepository;
@@ -65,37 +66,23 @@ public class BookService {
     }
 
     @Transactional
-    public boolean addAuthorToBook(Long bookId, Long authorId) {
-        Optional<Book> bookOptional = bookRepository.findById(bookId);
-        Optional<Author> authorOptional = authorRepository.findById(authorId);
-
-        if (bookOptional.isEmpty() || authorOptional.isEmpty()) {
-            return false;
-        }
-
-        Book book = bookOptional.get();
-        Author author = authorOptional.get();
+    public void addAuthorToBook(Long bookId, Long authorId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
+        Author author = authorRepository.findById(authorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + authorId));
 
         bookRelationService.addAuthorToBook(book, author);
-
-        return true;
     }
 
     @Transactional
-    public boolean addReaderToBook(Long bookId, Long readerId) {
-        Optional<Book> bookOptional = bookRepository.findById(bookId);
-        Optional<Reader> readerOptional = readerRepository.findById(readerId);
-
-        if (bookOptional.isEmpty() || readerOptional.isEmpty()) {
-            return false;
-        }
-
-        Book book = bookOptional.get();
-        Reader reader = readerOptional.get();
+    public void addReaderToBook(Long bookId, Long readerId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
+        Reader reader = readerRepository.findById(readerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reader not found with id: " + readerId));
 
         bookRelationService.addReaderToBook(book, reader);
-
-        return true;
     }
 
     @Transactional

@@ -44,13 +44,7 @@ public class ReaderController {
 
     @GetMapping("/{readerId}/books")
     public ResponseEntity<List<BookResponse>> getBooksByReader(@PathVariable Long readerId) {
-        var response = readerService.getBooksByReader(readerId);
-
-        if (response.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(response.get());
+        return ResponseEntity.ok(readerService.getBooksByReader(readerId));
     }
 
     @PostMapping
