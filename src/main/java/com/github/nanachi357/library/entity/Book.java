@@ -48,36 +48,4 @@ public class Book {
         this.title = title;
     }
 
-    public void addAuthor(Author author) {
-        authors.add(author);
-        author.getBooks().add(this);
-    }
-
-    public void removeAuthor(Author author) {
-        authors.remove(author);
-        author.getBooks().remove(this);
-    }
-
-    public void addReader(Reader reader) {
-        readers.add(reader);
-        reader.getBooks().add(this);
-    }
-
-    public void removeReader(Reader reader) {
-        readers.remove(reader);
-        reader.getBooks().remove(this);
-    }
-
-    public void removeAllAuthors() {
-        for (Author author : new HashSet<>(authors)) {
-            removeAuthor(author);
-        }
-    }
-
-    public void removeAllReaders() {
-        for (Reader reader : new HashSet<>(readers)) {
-            removeReader(reader);
-        }
-    }
-
 }

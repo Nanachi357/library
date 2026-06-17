@@ -26,6 +26,7 @@ public class AuthorService {
     private final BookRepository bookRepository;
     private final AuthorMapper authorMapper;
     private final BookMapper bookMapper;
+    private final BookRelationService bookRelationService;
 
     public List<AuthorResponse> getAll() {
         return authorRepository.findAll().stream()
@@ -87,7 +88,7 @@ public class AuthorService {
         Author author = authorOptional.get();
 
         new HashSet<>(author.getBooks())
-                .forEach(book -> book.removeAuthor(author));
+                .forEach(book -> bookRelationService.removeAuthorFromBook(book, author));
 
         authorRepository.delete(author);
         return true;

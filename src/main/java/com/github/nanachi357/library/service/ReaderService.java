@@ -26,6 +26,7 @@ public class ReaderService {
     private final BookRepository bookRepository;
     private final ReaderMapper readerMapper;
     private final BookMapper bookMapper;
+    private final BookRelationService bookRelationService;
 
     public List<ReaderResponse> getAll() {
         return readerRepository.findAll().stream()
@@ -87,7 +88,7 @@ public class ReaderService {
         Reader reader = readerOptional.get();
 
         new HashSet<>(reader.getBooks())
-                .forEach(book -> book.removeReader(reader));
+                .forEach(book -> bookRelationService.removeReaderFromBook(book, reader));
 
         readerRepository.delete(reader);
         return true;

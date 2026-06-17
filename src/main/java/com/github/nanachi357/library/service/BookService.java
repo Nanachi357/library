@@ -26,6 +26,7 @@ public class BookService {
     private final AuthorRepository authorRepository;
     private final ReaderRepository readerRepository;
     private final BookMapper bookMapper;
+    private final BookRelationService bookRelationService;
 
     public List<BookResponse> getAll() {
         return bookRepository.findAll().stream()
@@ -75,7 +76,7 @@ public class BookService {
         Book book = bookOptional.get();
         Author author = authorOptional.get();
 
-        book.addAuthor(author);
+        bookRelationService.addAuthorToBook(book, author);
 
         return true;
     }
@@ -92,7 +93,7 @@ public class BookService {
         Book book = bookOptional.get();
         Reader reader = readerOptional.get();
 
-        book.addReader(reader);
+        bookRelationService.addReaderToBook(book, reader);
 
         return true;
     }
@@ -106,8 +107,8 @@ public class BookService {
         }
 
         Book book = bookOptional.get();
-        book.removeAllAuthors();
-        book.removeAllReaders();
+        bookRelationService.removeAllAuthorsFromBook(book);
+        bookRelationService.removeAllReadersFromBook(book);
         bookRepository.delete(book);
 
         return true;
