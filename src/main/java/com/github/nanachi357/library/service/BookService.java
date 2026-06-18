@@ -2,6 +2,7 @@ package com.github.nanachi357.library.service;
 
 import com.github.nanachi357.library.dto.BookResponse;
 import com.github.nanachi357.library.dto.CreateBookRequest;
+import com.github.nanachi357.library.dto.PageResponse;
 import com.github.nanachi357.library.dto.PatchBookRequest;
 import com.github.nanachi357.library.dto.UpdateBookRequest;
 import com.github.nanachi357.library.entity.Author;
@@ -13,10 +14,10 @@ import com.github.nanachi357.library.repository.AuthorRepository;
 import com.github.nanachi357.library.repository.BookRepository;
 import com.github.nanachi357.library.repository.ReaderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,10 +30,11 @@ public class BookService {
     private final BookMapper bookMapper;
     private final BookRelationService bookRelationService;
 
-    public List<BookResponse> getAll() {
-        return bookRepository.findAll().stream()
-                .map(bookMapper::toResponse)
-                .toList();
+    public PageResponse<BookResponse> getAll(Pageable pageable) {
+        var books = bookRepository.findAll(pageable)
+                .map(bookMapper::toResponse);
+
+        return PageResponse.from(books);
     }
 
     public Optional<BookResponse> getById(Long id) {

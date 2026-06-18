@@ -2,11 +2,15 @@ package com.github.nanachi357.library.controller;
 
 import com.github.nanachi357.library.dto.BookResponse;
 import com.github.nanachi357.library.dto.CreateBookRequest;
+import com.github.nanachi357.library.dto.PageResponse;
 import com.github.nanachi357.library.dto.PatchBookRequest;
 import com.github.nanachi357.library.dto.UpdateBookRequest;
 import com.github.nanachi357.library.service.BookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -17,10 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/books")
@@ -30,8 +33,13 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    public List<BookResponse> getAll() {
-        return bookService.getAll();
+    public PageResponse<BookResponse> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("title").ascending());
+
+        return bookService.getAll(pageable);
     }
 
     @GetMapping("/{id}")
