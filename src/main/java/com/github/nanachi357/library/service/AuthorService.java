@@ -1,16 +1,21 @@
 package com.github.nanachi357.library.service;
 
 import com.github.nanachi357.library.dto.AuthorResponse;
+import com.github.nanachi357.library.dto.BookResponse;
 import com.github.nanachi357.library.dto.CreateAuthorRequest;
 import com.github.nanachi357.library.dto.PatchAuthorRequest;
 import com.github.nanachi357.library.dto.UpdateAuthorRequest;
 import com.github.nanachi357.library.entity.Author;
+import com.github.nanachi357.library.exception.ResourceNotFoundException;
 import com.github.nanachi357.library.mapper.AuthorMapper;
+import com.github.nanachi357.library.mapper.BookMapper;
 import com.github.nanachi357.library.repository.AuthorRepository;
+import com.github.nanachi357.library.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +24,10 @@ import java.util.Optional;
 public class AuthorService {
 
     private final AuthorRepository authorRepository;
+    private final BookRepository bookRepository;
     private final AuthorMapper authorMapper;
+    private final BookMapper bookMapper;
+    private final BookRelationService bookRelationService;
 
     public List<AuthorResponse> getAll() {
         return authorRepository.findAll().stream()
@@ -57,12 +65,31 @@ public class AuthorService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public List<BookResponse> getBooksByAuthor(Long authorId) {
+        if (!authorRepository.existsById(authorId)) {
+            throw new ResourceNotFoundException("Author not found with id: " + authorId);
+        }
+
+        return bookRepository.findAllByAuthorId(authorId).stream()
+                .map(bookMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional
     public boolean deleteById(Long id) {
-        if (!authorRepository.existsById(id)) {
+        Optional<Author> authorOptional = authorRepository.findById(id);
+
+        if (authorOptional.isEmpty()) {
             return false;
         }
 
-        authorRepository.deleteById(id);
+        Author author = authorOptional.get();
+
+        new HashSet<>(author.getBooks())
+                .forEach(book -> bookRelationService.removeAuthorFromBook(book, author));
+
+        authorRepository.delete(author);
         return true;
     }
 

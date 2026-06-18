@@ -47,6 +47,18 @@ public class BookController {
         return bookService.create(request);
     }
 
+    @PostMapping("/{bookId}/authors/{authorId}")
+    public ResponseEntity<Void> addAuthorToBook(@PathVariable Long bookId, @PathVariable Long authorId) {
+        bookService.addAuthorToBook(bookId, authorId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{bookId}/readers/{readerId}")
+    public ResponseEntity<Void> addReaderToBook(@PathVariable Long bookId, @PathVariable Long readerId) {
+        bookService.addReaderToBook(bookId, readerId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<BookResponse> update(
             @PathVariable Long id,

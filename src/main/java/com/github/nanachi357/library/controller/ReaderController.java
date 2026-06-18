@@ -1,5 +1,6 @@
 package com.github.nanachi357.library.controller;
 
+import com.github.nanachi357.library.dto.BookResponse;
 import com.github.nanachi357.library.dto.CreateReaderRequest;
 import com.github.nanachi357.library.dto.PatchReaderRequest;
 import com.github.nanachi357.library.dto.ReaderResponse;
@@ -39,6 +40,11 @@ public class ReaderController {
         return readerService.getById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{readerId}/books")
+    public ResponseEntity<List<BookResponse>> getBooksByReader(@PathVariable Long readerId) {
+        return ResponseEntity.ok(readerService.getBooksByReader(readerId));
     }
 
     @PostMapping

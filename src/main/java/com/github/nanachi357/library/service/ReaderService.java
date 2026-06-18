@@ -1,16 +1,21 @@
 package com.github.nanachi357.library.service;
 
+import com.github.nanachi357.library.dto.BookResponse;
 import com.github.nanachi357.library.dto.CreateReaderRequest;
 import com.github.nanachi357.library.dto.PatchReaderRequest;
 import com.github.nanachi357.library.dto.ReaderResponse;
 import com.github.nanachi357.library.dto.UpdateReaderRequest;
 import com.github.nanachi357.library.entity.Reader;
+import com.github.nanachi357.library.exception.ResourceNotFoundException;
+import com.github.nanachi357.library.mapper.BookMapper;
 import com.github.nanachi357.library.mapper.ReaderMapper;
+import com.github.nanachi357.library.repository.BookRepository;
 import com.github.nanachi357.library.repository.ReaderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,7 +24,10 @@ import java.util.Optional;
 public class ReaderService {
 
     private final ReaderRepository readerRepository;
+    private final BookRepository bookRepository;
     private final ReaderMapper readerMapper;
+    private final BookMapper bookMapper;
+    private final BookRelationService bookRelationService;
 
     public List<ReaderResponse> getAll() {
         return readerRepository.findAll().stream()
@@ -57,12 +65,31 @@ public class ReaderService {
                 });
     }
 
+    @Transactional(readOnly = true)
+    public List<BookResponse> getBooksByReader(Long readerId) {
+        if (!readerRepository.existsById(readerId)) {
+            throw new ResourceNotFoundException("Reader not found with id: " + readerId);
+        }
+
+        return bookRepository.findAllByReaderId(readerId).stream()
+                .map(bookMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional
     public boolean deleteById(Long id) {
-        if (!readerRepository.existsById(id)) {
+        Optional<Reader> readerOptional = readerRepository.findById(id);
+
+        if (readerOptional.isEmpty()) {
             return false;
         }
 
-        readerRepository.deleteById(id);
+        Reader reader = readerOptional.get();
+
+        new HashSet<>(reader.getBooks())
+                .forEach(book -> bookRelationService.removeReaderFromBook(book, reader));
+
+        readerRepository.delete(reader);
         return true;
     }
 

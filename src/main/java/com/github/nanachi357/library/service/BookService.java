@@ -4,9 +4,14 @@ import com.github.nanachi357.library.dto.BookResponse;
 import com.github.nanachi357.library.dto.CreateBookRequest;
 import com.github.nanachi357.library.dto.PatchBookRequest;
 import com.github.nanachi357.library.dto.UpdateBookRequest;
+import com.github.nanachi357.library.entity.Author;
 import com.github.nanachi357.library.entity.Book;
+import com.github.nanachi357.library.entity.Reader;
+import com.github.nanachi357.library.exception.ResourceNotFoundException;
 import com.github.nanachi357.library.mapper.BookMapper;
+import com.github.nanachi357.library.repository.AuthorRepository;
 import com.github.nanachi357.library.repository.BookRepository;
+import com.github.nanachi357.library.repository.ReaderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +24,10 @@ import java.util.Optional;
 public class BookService {
 
     private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
+    private final ReaderRepository readerRepository;
     private final BookMapper bookMapper;
+    private final BookRelationService bookRelationService;
 
     public List<BookResponse> getAll() {
         return bookRepository.findAll().stream()
@@ -57,12 +65,39 @@ public class BookService {
                 });
     }
 
+    @Transactional
+    public void addAuthorToBook(Long bookId, Long authorId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
+        Author author = authorRepository.findById(authorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Author not found with id: " + authorId));
+
+        bookRelationService.addAuthorToBook(book, author);
+    }
+
+    @Transactional
+    public void addReaderToBook(Long bookId, Long readerId) {
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with id: " + bookId));
+        Reader reader = readerRepository.findById(readerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reader not found with id: " + readerId));
+
+        bookRelationService.addReaderToBook(book, reader);
+    }
+
+    @Transactional
     public boolean deleteById(Long id) {
-        if (!bookRepository.existsById(id)) {
+        Optional<Book> bookOptional = bookRepository.findById(id);
+
+        if (bookOptional.isEmpty()) {
             return false;
         }
 
-        bookRepository.deleteById(id);
+        Book book = bookOptional.get();
+        bookRelationService.removeAllAuthorsFromBook(book);
+        bookRelationService.removeAllReadersFromBook(book);
+        bookRepository.delete(book);
+
         return true;
     }
 

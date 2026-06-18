@@ -17,12 +17,15 @@ public interface AuthorMapper {
     AuthorResponse toResponse(Author author);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "books", ignore = true)
     Author toEntity(CreateAuthorRequest request);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "books", ignore = true)
     void updateEntity(UpdateAuthorRequest request, @MappingTarget Author author);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "books", ignore = true)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void patchEntity(PatchAuthorRequest request, @MappingTarget Author author);
 
