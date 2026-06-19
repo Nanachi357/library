@@ -3,6 +3,7 @@ package com.github.nanachi357.library.service;
 import com.github.nanachi357.library.dto.AuthorResponse;
 import com.github.nanachi357.library.dto.BookResponse;
 import com.github.nanachi357.library.dto.CreateAuthorRequest;
+import com.github.nanachi357.library.dto.PageResponse;
 import com.github.nanachi357.library.dto.PatchAuthorRequest;
 import com.github.nanachi357.library.dto.UpdateAuthorRequest;
 import com.github.nanachi357.library.entity.Author;
@@ -12,11 +13,11 @@ import com.github.nanachi357.library.mapper.BookMapper;
 import com.github.nanachi357.library.repository.AuthorRepository;
 import com.github.nanachi357.library.repository.BookRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,10 +30,11 @@ public class AuthorService {
     private final BookMapper bookMapper;
     private final BookRelationService bookRelationService;
 
-    public List<AuthorResponse> getAll() {
-        return authorRepository.findAll().stream()
-                .map(authorMapper::toResponse)
-                .toList();
+    public PageResponse<AuthorResponse> getAll(Pageable pageable) {
+        var authors = authorRepository.findAll(pageable)
+                .map(authorMapper::toResponse);
+
+        return PageResponse.from(authors);
     }
 
     public Optional<AuthorResponse> getById(Long id) {
@@ -66,14 +68,15 @@ public class AuthorService {
     }
 
     @Transactional(readOnly = true)
-    public List<BookResponse> getBooksByAuthor(Long authorId) {
+    public PageResponse<BookResponse> getBooksByAuthor(Long authorId, Pageable pageable) {
         if (!authorRepository.existsById(authorId)) {
             throw new ResourceNotFoundException("Author not found with id: " + authorId);
         }
 
-        return bookRepository.findAllByAuthorId(authorId).stream()
-                .map(bookMapper::toResponse)
-                .toList();
+        var books = bookRepository.findAllByAuthorId(authorId, pageable)
+                .map(bookMapper::toResponse);
+
+        return PageResponse.from(books);
     }
 
     @Transactional
